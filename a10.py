@@ -112,6 +112,81 @@ def get_birth_date(name: str) -> str:
     return match.group("birth")
 
 
+def get_death_toll(name: str) -> str:# Limited to tornadic storms or hurricanes with a set recorded number of fatalities
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Fatalities\D*)(?P<dead>[\d,]+)"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("dead")
+
+def get_injury_toll(name: str) -> str:# Limited to tornadic storms or hurricanes with a set recorded number of injuries
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Injuries\D*)(?P<injured>[\d,]+)"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("injured")
+
+
+def get_wind_speed_mph(name: str) -> str: #Limited to storms that have their speed listed and converted to miles per hour
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Highest winds\S+\D*)(?P<wind>[\d]+ mph)"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("wind")
+
+
+def get_wind_speed_km_h(name: str) -> str: #Limited to storms that have their speed listed and converted to kilometers per hour
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Highest winds\S+\D*)(?P<wind>[\d]+ km/h)"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("wind")
+
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -141,6 +216,53 @@ def polar_radius(matches: List[str]) -> List[str]:
     return [get_polar_radius(matches[0])]
 
 
+def death_toll(matches: List[str]) -> List[str]:# Limited to tornadic storms or hurricanes with a set recorded number of fatalities
+    """Returns polar radius of planet in matches
+
+    Args:
+        matches - match from pattern of planet to find polar radius of
+
+    Returns:
+        polar radius of planet
+    """
+    return [get_death_toll(matches[0])]
+
+def injury_toll(matches: List[str]) -> List[str]:# Limited to tornadic storms or hurricanes with a set recorded number of fatalities
+    """Returns polar radius of planet in matches
+
+    Args:
+        matches - match from pattern of planet to find polar radius of
+
+    Returns:
+        polar radius of planet
+    """
+    return [get_injury_toll(matches[0])]
+
+
+def wind_speed_mph(matches: List[str]) -> List[str]: #Limited to storms that have their speed listed and converted to miles per hour
+    """Returns polar radius of planet in matches
+
+    Args:
+        matches - match from pattern of planet to find polar radius of
+
+    Returns:
+        polar radius of planet
+    """
+    return [get_wind_speed_mph(matches[0])]
+
+
+def wind_speed_km_h(matches: List[str]) -> List[str]: #Limited to storms that have their speed listed and converted to kilometers per hour
+    """Returns polar radius of planet in matches
+
+    Args:
+        matches - match from pattern of planet to find polar radius of
+
+    Returns:
+        polar radius of planet
+    """
+    return [get_wind_speed_km_h(matches[0])]
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -156,6 +278,20 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    # Only for listed fatalities and injuries
+    ("how many died in the %".split(), death_toll),
+    ("how many died in %".split(), death_toll),
+    ("% number of deaths".split(), death_toll),
+    ("how many were injured in the %".split(), injury_toll),
+    ("how many were injured in %".split(), injury_toll),
+    ("% number of injured people".split(), injury_toll),
+    # Only for converted wind speeds
+    ("what was the wind speed of the % in mph".split(), wind_speed_mph),
+    ("what was the wind speed of % in mph".split(), wind_speed_mph),
+    ("% wind speed in mph".split(), wind_speed_mph),
+    ("what was the wind speed of the % in km/h".split(), wind_speed_km_h),
+    ("what was the wind speed of % in km/h".split(), wind_speed_km_h),
+    ("% wind speed in km/h".split(), wind_speed_km_h),
     (["bye"], bye_action),
 ]
 
